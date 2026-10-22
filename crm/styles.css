@@ -7,6 +7,9 @@
   padding: 16px;
 }
 
+.test-tools { display: flex; gap: 8px; }
+button.danger { background: #b91c1c; color: #fff; }
+
 .screen-pop { align-self: start; border-top: 4px solid var(--accent); }
 .pop-message { margin: 0 0 16px; font-size: 1.3rem; font-weight: 600; word-break: break-word; }
 .pop-meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: .85rem; }

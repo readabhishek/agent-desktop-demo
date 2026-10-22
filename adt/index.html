@@ -20,6 +20,9 @@
     <div class="peers" aria-live="polite">
       <span class="pill" id="crmPill" title="Connected CRM windows"><i></i>CRM <b>0</b></span>
       <span class="pill" id="chatPill" title="Connected Chat windows"><i></i>Chat <b>0</b></span>
+      <span class="pill mem" id="memPill" hidden
+            title="JavaScript heap used by this ADTCallControl page (Chrome's performance.memory). It excludes the Five9 iframe, which runs in its own process, and DOM/GPU memory. Chrome's Task Manager (Shift+Esc) shows the full footprint.">
+        JS heap <b id="memUsed">–</b></span>
     </div>
     <div class="actions">
       <button type="button" class="secondary" id="openCrm">Open CRM</button>

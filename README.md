@@ -34,9 +34,69 @@ npm start
 (or `node server.js`). It prints the three URLs. Press **Ctrl+C** to stop it.
 
 1. Open http://localhost:3001 in Chrome or Edge. Click **Install app** to get ADTCallControl as its own taskbar app.
-2. Click **Open CRM** and **Open Chat**. Each opens as a normal Chrome tab; drag a tab out if you want it in its own Chrome window. You can also just type their URLs into any Chrome tab.
+2. Click **Open CRM** and **Open Chat**. Each opens as a normal Chrome tab; drag a tab out if you want it in its own Chrome window. If one is already connected, ADT says so in its log instead of opening another. You can also just type their URLs into any Chrome tab.
 3. The **CRM** and **Chat** badges in ADT turn green when those windows are connected.
 4. Pick an event type, type a message and press **Send**. The target app shows it, and ADT logs **ACK** once it's delivered. Expand **Raw message** on any entry to see the exact JSON.
+
+## Testing that CRM failures don't affect ADTCallControl
+
+CRM has two test buttons in its header:
+
+- **Freeze CRM (60s)** blocks CRM's page for 60 seconds, like a stuck script. ADT keeps working. Its CRM badge goes grey, and events sent meanwhile show "not delivered".
+- **Crash CRM** uses up the tab's memory until Chrome kills its process ("Aw, Snap! Out of memory"). ADT and its Five9 call should keep running. Reload the CRM tab to reconnect.
+
+You can also type `chrome://crash` or `chrome://hang` into the CRM tab's address bar. Pages aren't allowed to open those addresses themselves.
+
+### Finding each window in Task Manager
+
+The CRM and Chat tab titles include a short window ID, e.g. **Acme CRM · da30**. It's the same ID ADTCallControl logs as "CRM window da30 connected".
+
+1. In any Chrome window, press **Shift+Esc** to open Chrome's Task Manager. Rows show as **App: ADTCallControl**, **Tab: Acme CRM · da30**, **Tab: Acme Chat · 2c7e**, and **Subframe: https://five9.com** (the Five9 ADT iframe, where the WebRTC call runs).
+2. Right-click a column header and turn on **Process ID**.
+3. To kill one, select its row and click **End process**. This crashes just that page, the same as a real crash.
+
+Check that ADTCallControl, the Five9 subframe and the CRM tab each have a **different Process ID**. If ADT and CRM share one, a CRM crash would also take down ADT and the call. See [Process isolation](#process-isolation).
+
+Windows Task Manager only shows many `chrome.exe` entries. To find a specific one, use **Details → PID** and match it to the Process ID from Chrome's Task Manager.
+
+## Process isolation
+
+ADT, CRM and Chat are the **same site** to Chrome (all `localhost`, or all `*.acme.com` in production). Same-site pages are allowed to share one renderer process. When they do, they share one main thread: a CRM freeze freezes ADT, and a CRM crash also kills ADT and the Five9 iframe inside it, which drops the call.
+
+What the demo does about it:
+
+| Measure | Where | Effect |
+|---|---|---|
+| Open CRM and Chat with `noopener` | `adt/app.js` | No `window.opener` link back to ADT. With that link, Chrome **must** put same-site pages in one process. |
+| `Cross-Origin-Opener-Policy: same-origin-allow-popups` | ADT responses (`server.js`) | ADT always starts separate, even if CRM or Chat opens it. Popups from the Five9 iframe, e.g. an SSO login, still work. |
+| `Origin-Agent-Cluster: ?1` | All responses (`server.js`) | Asks Chrome to keep each origin to itself rather than share by site |
+
+These remove the linked-window case, which was the cause in practice. Only Chrome's **`IsolateOrigins`** policy *guarantees* a separate process for each origin, even when memory is low. Set it on every agent PC. The BroadcastChannel bridge keeps working with it.
+
+**Windows (Chrome):** registry value `HKLM\SOFTWARE\Policies\Google\Chrome`, `IsolateOrigins` (REG_SZ). For Edge, use `HKLM\SOFTWARE\Policies\Microsoft\Edge`. On a domain, use Group Policy or Intune instead.
+**macOS:** a configuration profile (MDM) for `com.google.Chrome` with the `IsolateOrigins` key.
+
+Value for this demo:
+
+```
+http://localhost:3001,http://localhost:3002,http://localhost:3003
+```
+
+For production:
+
+```
+https://adt.acme.com,https://crm.acme.com,https://chat.acme.com
+```
+
+Restart Chrome completely, including the installed ADT app, then confirm it on `chrome://policy`.
+
+To try it without policy, fully quit Chrome, then start it with the matching flag:
+
+```
+chrome.exe --isolate-origins=http://localhost:3001,http://localhost:3002,http://localhost:3003
+```
+
+**Not covered by any of this:** everything still runs in **one Chrome browser process**. Chrome's **⋮ → Exit**, a restart for an update, or a crash of Chrome itself still closes ADT. Separating that too means running ADT in a separate Chrome instance (`--user-data-dir`). BroadcastChannel doesn't cross instances, so the bus would then need a relay, such as a server or an extension with native messaging. Use the `RelaunchNotification` and `RelaunchWindow` policies to keep update restarts outside shifts.
 
 ## How it works
 

@@ -4,6 +4,9 @@
   const status = $('status');
   const thread = $('thread');
 
+  // Matches the window ID ADTCallControl logs, and shows in Chrome's Task Manager.
+  document.title = `Acme Chat · ${AgentBus.instanceId.slice(0, 4)}`;
+
   AgentBus.onStatus((connected) => {
     status.classList.toggle('on', connected);
     status.querySelector('span').textContent = connected ? 'Connected to ADTCallControl' : 'Waiting for ADTCallControl…';

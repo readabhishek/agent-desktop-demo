@@ -75,7 +75,18 @@ function handle(appName, root, req, res) {
   const headers = {
     'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream',
     'Cache-Control': 'no-cache',
+    // Process isolation (see README "Process isolation"). The apps are same-site, which
+    // lets Chrome put them in one renderer process; this asks Chrome to key each origin
+    // separately so a CRM freeze or crash can't reach ADT. The IsolateOrigins policy
+    // makes it a guarantee.
+    'Origin-Agent-Cluster': '?1',
   };
+  // ADT always starts in its own browsing context group, even if CRM or Chat opens it,
+  // so it never shares their process. "allow-popups" keeps popups the Five9 iframe may
+  // open (e.g. an SSO login) working.
+  if (appName === 'adt') {
+    headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups';
+  }
   // Only CRM and Chat may embed the bridge, so no other page can listen in on the bus.
   if (appName === 'adt' && urlPath === '/bridge.html') {
     headers['Content-Security-Policy'] = `frame-ancestors ${CONFIG.crmOrigin} ${CONFIG.chatOrigin}`;

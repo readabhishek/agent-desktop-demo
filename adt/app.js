@@ -190,15 +190,43 @@
   // ---- Opening CRM and Chat in Chrome ------------------------------------------
 
   // CRM and Chat are regular web pages, so they open as normal Chrome tabs (with the
-  // address bar and Chrome's taskbar icon), not as app or popup windows. The name
-  // reuses the same tab on a second click. Communication does not depend on the
-  // tabs being opened from here.
+  // address bar and Chrome's taskbar icon), not as app or popup windows.
+  //
+  // `noopener` is essential: without it the new tab keeps a window.opener link to ADT,
+  // and Chrome must then run these same-site pages in ONE renderer process, so a CRM
+  // freeze or crash would take ADT (and the Five9 call) down with it. The bus doesn't
+  // need the link. The trade-off is that ADT can't focus an existing tab, so it opens
+  // a new one only when none is connected.
   function openApp(app) {
-    window.open(APPS[app].url, app)?.focus();
+    const open = [...peers.entries()].filter(([, p]) => p.app === app);
+    if (open.length) {
+      const ids = open.map(([id]) => shortId(id)).join(', ');
+      log.add({ tag: 'bus', text: `${APPS[app].label} is already open (window ${ids}). Switch to it in Chrome.` });
+      return;
+    }
+    window.open(APPS[app].url, '_blank', 'noopener');
   }
 
   $('openCrm').addEventListener('click', () => openApp('crm'));
   $('openChat').addEventListener('click', () => openApp('chat'));
+
+  // ---- Memory footprint ---------------------------------------------------------
+
+  // Pages can't read their process memory; Chrome's performance.memory gives this page's
+  // JavaScript heap (rounded by Chrome). Not available in non-Chromium browsers.
+  if (performance.memory) {
+    const mb = (bytes) => `${(bytes / 1048576).toFixed(1)} MB`;
+    const pill = $('memPill');
+    const note = pill.title;
+    const showMemory = () => {
+      const { usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit } = performance.memory;
+      $('memUsed').textContent = mb(usedJSHeapSize);
+      pill.title = `${mb(usedJSHeapSize)} used of ${mb(totalJSHeapSize)} allocated (limit ${mb(jsHeapSizeLimit)})\n\n${note}`;
+    };
+    pill.hidden = false;
+    showMemory();
+    setInterval(showMemory, 2000);
+  }
 
   // ---- Install as an app ------------------------------------------------------
 
