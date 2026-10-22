@@ -10,13 +10,28 @@ Three separate web apps that talk to each other in the browser, with no server i
 
 Only ADTCallControl is installable and gets its own taskbar icon. CRM and Chat have no manifest or service worker, so they run as ordinary Chrome tabs and windows under Chrome's taskbar icon.
 
-## Run
+## Get the code
 
-Requires Node.js. There are no dependencies to install.
+You need [Node.js](https://nodejs.org/) 16 or later, and Chrome or Edge. There are no packages to install.
+
+With Git:
 
 ```bash
-node agent-desktop-demo/server.js
+git clone https://github.com/readabhishek/agent-desktop-demo.git
+cd agent-desktop-demo
 ```
+
+Without Git, open https://github.com/readabhishek/agent-desktop-demo, click **Code → Download ZIP**, unzip it, and open a terminal in the unzipped folder.
+
+## Run
+
+From the project folder:
+
+```bash
+npm start
+```
+
+(or `node server.js`). It prints the three URLs. Press **Ctrl+C** to stop it.
 
 1. Open http://localhost:3001 in Chrome or Edge. Click **Install app** to get ADTCallControl as its own taskbar app.
 2. Click **Open CRM** and **Open Chat**. Each opens as a normal Chrome tab; drag a tab out if you want it in its own Chrome window. You can also just type their URLs into any Chrome tab.
