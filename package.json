@@ -1,0 +1,9 @@
+{
+  "name": "agent-desktop-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ADTCallControl PWA talking to CRM and Chat windows over a BroadcastChannel bridge.",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

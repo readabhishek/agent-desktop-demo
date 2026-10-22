@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ADTCallControl</title>
+  <meta name="description" content="Agent call control with the Five9 ADT embedded, relaying events to CRM and Chat.">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="adt">
+  <header class="topbar">
+    <div class="brand">
+      <img src="icons/icon-192.png" alt="" width="32" height="32">
+      <h1>ADTCallControl</h1>
+    </div>
+    <div class="peers" aria-live="polite">
+      <span class="pill" id="crmPill" title="Connected CRM windows"><i></i>CRM <b>0</b></span>
+      <span class="pill" id="chatPill" title="Connected Chat windows"><i></i>Chat <b>0</b></span>
+    </div>
+    <div class="actions">
+      <button type="button" class="secondary" id="openCrm">Open CRM</button>
+      <button type="button" class="secondary" id="openChat">Open Chat</button>
+      <button type="button" id="installBtn" hidden>Install app</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="five9-panel">
+      <iframe id="five9" title="Five9 Agent Desktop Toolkit"
+              allow="microphone; camera; autoplay; clipboard-read; clipboard-write; display-capture"></iframe>
+    </section>
+
+    <section class="side">
+      <form id="sendForm" class="card">
+        <h2>Send test event</h2>
+        <p class="muted form-note">Real call and chat events from the Five9 ADT are forwarded automatically.</p>
+        <label>Event type
+          <select id="eventType">
+            <option value="voice">voice → CRM</option>
+            <option value="chat">chat → Chat</option>
+          </select>
+        </label>
+        <label>Message
+          <textarea id="message" rows="3" required placeholder="e.g. Incoming call from +1 555 0100, account 4471"></textarea>
+        </label>
+        <div class="form-foot">
+          <button type="submit">Send</button>
+          <span class="muted hint">Enter to send · Shift+Enter for a new line</span>
+        </div>
+      </form>
+
+      <section class="card log-card">
+        <div class="card-head">
+          <h2>Activity</h2>
+          <div class="log-tools">
+            <label class="check"><input type="checkbox" id="showFive9"><span>Five9 iframe traffic (<span id="five9Count">0</span>)</span></label>
+            <button type="button" class="link" id="clearLog">Clear</button>
+          </div>
+        </div>
+        <ol id="log" class="log" data-empty="Nothing yet. Open CRM and Chat, then send an event."></ol>
+      </section>
+    </section>
+  </main>
+
+  <script src="/shared/config.js"></script>
+  <script src="/shared/log.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

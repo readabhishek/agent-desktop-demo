@@ -1,0 +1,33 @@
+.page {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.thread-card { display: flex; flex-direction: column; min-height: 0; }
+.thread { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+.thread:empty::before { content: attr(data-empty); margin: auto; color: var(--muted); text-align: center; }
+
+.bubble {
+  align-self: flex-start;
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  word-break: break-word;
+  animation: pop .25s ease-out;
+}
+.bubble small { display: block; margin-top: 4px; color: var(--muted); font-size: .75rem; }
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 700px) {
+  .page { grid-template-columns: 1fr; }
+  .thread-card, .log-card { min-height: 280px; }
+}

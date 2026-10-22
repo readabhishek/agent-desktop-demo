@@ -1,0 +1,25 @@
+.page {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 2fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.screen-pop { align-self: start; border-top: 4px solid var(--accent); }
+.pop-message { margin: 0 0 16px; font-size: 1.3rem; font-weight: 600; word-break: break-word; }
+.pop-meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: .85rem; }
+.pop-meta dt { color: var(--muted); }
+.pop-meta dd { margin: 0; font-variant-numeric: tabular-nums; word-break: break-all; }
+
+.flash { animation: flash .8s ease-out; }
+@keyframes flash {
+  from { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent); }
+  to { box-shadow: 0 0 0 0 transparent; }
+}
+
+@media (max-width: 700px) {
+  .page { grid-template-columns: 1fr; }
+  .log-card { min-height: 320px; }
+}

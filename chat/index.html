@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acme Chat</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Ctext x='16' y='22' font-family='Segoe UI,sans-serif' font-size='15' font-weight='700' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/base.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="chat">
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">Chat</span>
+      <h1>Acme Chat</h1>
+    </div>
+    <span class="pill" id="status"><i></i><span>Waiting for ADTCallControl…</span></span>
+  </header>
+
+  <main class="page">
+    <section class="card thread-card">
+      <div class="card-head">
+        <h2>Conversation</h2>
+      </div>
+      <div class="thread" id="thread" data-empty="Chat events from ADTCallControl appear here as messages."></div>
+    </section>
+
+    <section class="card log-card">
+      <div class="card-head">
+        <h2>Received chat events</h2>
+        <button type="button" class="link" id="clearLog">Clear</button>
+      </div>
+      <ol id="log" class="log" data-empty="No chat events yet."></ol>
+    </section>
+  </main>
+
+  <script src="/shared/config.js"></script>
+  <script src="/shared/log.js"></script>
+  <script src="/shared/bus-client.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
